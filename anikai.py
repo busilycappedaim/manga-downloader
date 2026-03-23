@@ -72,11 +72,11 @@ def main():
 
     title = make_title(driver, quality, episode)
 
-    # print("Waiting for play button...")
+    # Click play button to trigger m3u8 request
     btn = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.play-btn")))
     btn.click()
 
-    # print("Waiting for m3u8...")
+    # Wait for m3u8 response
     if not event.wait(20):
         print("Timed out waiting for m3u8")
         driver.quit()
@@ -89,6 +89,8 @@ def main():
     headers = data["headers"]
 
     ydl_options = ydl_opts(quality_id, title)
+
+    # Attach same headers from m3u8 request
     ydl_options["http_headers"].update({
         "Referer":    headers.get("referer", ""),
         "Origin":     headers.get("origin", ""),
