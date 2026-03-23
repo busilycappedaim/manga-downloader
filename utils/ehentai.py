@@ -58,10 +58,10 @@ def download_loop(driver: WebDriver, ids: list[int], sleep: float = 1) -> list[P
 
     filepaths = []
 
-    for i, id in enumerate(tqdm(ids, total=len(ids))):
+    for id in tqdm(ids, total=len(ids)):
 
-        if i != 1:  # skip navigation for first page
-            
+        if id != 1:  # skip navigation for first page
+
             for _ in range(10):
                 time.sleep(sleep)
                 driver.switch_to.active_element.send_keys(Keys.ARROW_RIGHT)
