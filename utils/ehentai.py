@@ -1,8 +1,9 @@
+from utils.imageDownload import download
+
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
-from curl_cffi import requests
 from pathlib import Path
 from tqdm import tqdm
 
@@ -53,36 +54,17 @@ def get_img_link(driver: WebDriver) -> str:
 
     return img_link
 
-def download(url: str, id: int) -> Path:
-
-    ext = url.split(".")[-1]
-    filepath = Path("temp") / f"{id:03d}.{ext}"
-
-    for attempt in range(1,4):
-            
-        try:
-            response = requests.get(url, headers=headers, timeout=10, impersonate="firefox")
-            filepath.write_bytes(response.content)
-            break
-
-        except Exception as e:
-            if attempt == 3:
-                raise RuntimeError(f"Failed to download img #{id} after 3 attempts") from e
-            time.sleep(2 * attempt)
-
-    return filepath
-
-def download_loop(driver: WebDriver, ids: list[int], sleep: float = 0.3) -> list[Path]:
+def download_loop(driver: WebDriver, ids: list[int], sleep: float = 1) -> list[Path]:
 
     filepaths = []
 
     url = get_img_link(driver)
-    path = download(url, ids[0])
+    path = download(url, ids[0], headers)
     filepaths.append(path)
 
     for id in tqdm(ids[1:], total = len(ids)):
 
-        for _ in range(5):
+        for _ in range(10):
             time.sleep(sleep)
             driver.switch_to.active_element.send_keys(Keys.ARROW_RIGHT)
             if get_current_page(driver) == id:
@@ -91,10 +73,7 @@ def download_loop(driver: WebDriver, ids: list[int], sleep: float = 0.3) -> list
             raise RuntimeError(f"Failed to reach page {id} after 5 attempts")
 
         url = get_img_link(driver)
-        path = download(url, id)
+        path = download(url, id, headers)
         filepaths.append(path)
 
     return filepaths
-
-
-
