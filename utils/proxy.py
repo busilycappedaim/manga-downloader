@@ -28,7 +28,7 @@ def run_proxy(event, storage):
     asyncio.set_event_loop(loop)
     loop.run_until_complete(start())
 
-def start_proxy(storage):
-    t = threading.Thread(target=run_proxy, args=(storage,), daemon=True)
+def start_proxy(event, storage):
+    t = threading.Thread(target=run_proxy, args=(event, storage), daemon=True)
     t.start()
     time.sleep(1)
