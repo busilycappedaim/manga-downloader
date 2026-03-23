@@ -58,22 +58,20 @@ def download_loop(driver: WebDriver, ids: list[int], sleep: float = 1) -> list[P
 
     filepaths = []
 
+    for i, id in enumerate(tqdm(ids, total=len(ids))):
+
+        if i != 1:  # skip navigation for first page
+            
+            for _ in range(10):
+                time.sleep(sleep)
+                driver.switch_to.active_element.send_keys(Keys.ARROW_RIGHT)
+                if get_current_page(driver) == id:
+                    break
+            else: 
+                raise RuntimeError(f"Failed to reach page {id} after 10 attempts")
+
     url = get_img_link(driver)
-    path = download(url, ids[0], headers)
+    path = download(url, id, headers)
     filepaths.append(path)
-
-    for id in tqdm(ids[1:], total = len(ids)):
-
-        for _ in range(10):
-            time.sleep(sleep)
-            driver.switch_to.active_element.send_keys(Keys.ARROW_RIGHT)
-            if get_current_page(driver) == id:
-                break
-        else: 
-            raise RuntimeError(f"Failed to reach page {id} after 5 attempts")
-
-        url = get_img_link(driver)
-        path = download(url, id, headers)
-        filepaths.append(path)
 
     return filepaths
